@@ -31,15 +31,17 @@ Pricing is **not hardcoded in the markup** — it's computed by JS from a config
 ```js
 const KURS_CONFIG = {
   vollkurs_preis: 200,
+  spaeteinstieg_preis: 20,  // flat per-session price for late joiners, regardless of entry date
   einzeleintritt: 22,
-  probetraining: true,
-  einsteige: [ { datum: 'TT.MM.JJJJ', preis: <number|null>, typ: 'vollkurs' | 'abo' | 'einzeln' }, ... ]
+  anzahl_termine: 13,       // total Tuesday sessions incl. the free trial
+  erster_termin: 'TT.MM.JJJJ',
+  letzter_termin: 'TT.MM.JJJJ'
 };
 ```
 
-- `einsteige` is one entry per Tuesday session date. The first entry (`typ: 'vollkurs'`) and last entry (`typ: 'einzeln'`) have `preis: null`; every entry in between (`typ: 'abo'`) has a per-session price for someone joining late (a declining/staggered scale as the course progresses).
-- An IIFE right after this config reads `KURS_CONFIG`, derives the per-session full-course price (`vollkurs_preis / (count - 1)`, since the first session is a free trial), and renders both the 3 pricing boxes (`#preise-boxes`) and the detailed accordion table (`#preise-table`) from it.
-- **To update the course dates/prices, edit only `KURS_CONFIG`** — the rendered boxes and table update automatically. Do this identically in both `index.html` and `hiit_landingpage_mitpreise.html` since they're kept as duplicates.
+- Simplified in 2026: late-entry pricing used to be staggered per calendar week (11 different prices) with a 13-row accordion table (`#preise-table`); this was replaced with a single flat `spaeteinstieg_preis` and the accordion/table markup, CSS, and JS were removed entirely.
+- An IIFE right after this config reads `KURS_CONFIG`, derives the per-session full-course price (`vollkurs_preis / (anzahl_termine - 1)`, since the first session is a free trial), and renders the 3 pricing boxes (`#preise-boxes`): Vollkurs, Späteinstieg (flat rate), Einzeleintritt.
+- **To update the course dates/prices, edit only `KURS_CONFIG`** — the rendered boxes update automatically. Do this identically in both `index.html` and `hiit_landingpage_mitpreise.html` since they're kept as duplicates.
 
 ### Contact info
 

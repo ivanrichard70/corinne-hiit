@@ -347,27 +347,11 @@
 <script>
 const KURS_CONFIG = {
   vollkurs_preis: 200,
+  spaeteinstieg_preis: 20,  // fixer Preis pro Training, unabhängig vom Einstiegsdatum
   einzeleintritt: 22,
-  probetraining: true,  // erstes Training immer gratis
-
-  // Gestaffelte Preise pro Training je nach Einstiegsdatum
-  // Format: { datum: 'TT.MM.JJJJ', preis_pro_training: XX.XX }
-  // Letzter Eintrag = Einzeleintritt (kein Abo)
-  einsteige: [
-    { datum: '05.05.2026', preis: null,  typ: 'vollkurs' },
-    { datum: '12.05.2026', preis: 17.20, typ: 'abo' },
-    { datum: '19.05.2026', preis: 18.20, typ: 'abo' },
-    { datum: '26.05.2026', preis: 19.20, typ: 'abo' },
-    { datum: '02.06.2026', preis: 19.20, typ: 'abo' },
-    { datum: '09.06.2026', preis: 19.20, typ: 'abo' },
-    { datum: '16.06.2026', preis: 19.20, typ: 'abo' },
-    { datum: '23.06.2026', preis: 19.20, typ: 'abo' },
-    { datum: '30.06.2026', preis: 19.20, typ: 'abo' },
-    { datum: '07.07.2026', preis: 19.20, typ: 'abo' },
-    { datum: '14.07.2026', preis: 19.20, typ: 'abo' },
-    { datum: '21.07.2026', preis: 19.20, typ: 'abo' },
-    { datum: '28.07.2026', preis: null,  typ: 'einzeln' },
-  ]
+  anzahl_termine: 13,       // inkl. gratis Probetraining
+  erster_termin: '05.05.2026',
+  letzter_termin: '28.07.2026'
 };
 </script>
 
@@ -379,18 +363,6 @@ const KURS_CONFIG = {
 
     <!-- 3 Optionsboxen -->
     <div class="preise-boxes" id="preise-boxes"></div>
-
-    <!-- Aufklappbare Tabelle -->
-    <div class="preise-accordion">
-      <button class="accordion-toggle" onclick="toggleAccordion()">
-        <span>Späteinstieg – Detailübersicht nach Datum</span>
-        <span class="accordion-arrow" id="acc-arrow">▼</span>
-      </button>
-      <div class="accordion-body" id="accordion-body">
-        <table class="preise-table" id="preise-table"></table>
-        <p class="preise-note">* Erstes Training gratis als Probetraining. Danach fixes Abo für alle verbleibenden Dienstage.</p>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -456,83 +428,19 @@ const KURS_CONFIG = {
   }
   .preis-box.featured .box-features li::before { color: rgba(255,255,255,0.7); }
 
-  /* Accordion */
-  .preise-accordion { margin-top: 8px; }
-  .accordion-toggle {
-    width: 100%; display: flex; justify-content: space-between; align-items: center;
-    background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 2px;
-    color: var(--light); padding: 14px 20px; cursor: pointer;
-    font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem;
-    font-weight: 600; letter-spacing: 0.05em; text-align: left;
-    transition: background 0.15s;
-  }
-  .accordion-toggle:hover { background: #222; }
-  .accordion-arrow { color: var(--red); transition: transform 0.25s; display: inline-block; }
-  .accordion-arrow.open { transform: rotate(180deg); }
-  .accordion-body {
-    max-height: 0; overflow: hidden;
-    transition: max-height 0.35s ease;
-    background: #111; border: 1px solid #2a2a2a; border-top: none;
-  }
-  .accordion-body.open { max-height: 600px; }
-
-  .preise-table {
-    width: 100%; border-collapse: collapse;
-    font-family: 'Barlow', sans-serif; font-size: 0.82rem;
-    margin: 0;
-  }
-  .preise-table thead tr {
-    background: var(--red);
-  }
-  .preise-table th {
-    padding: 10px 14px; text-align: center;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; color: #fff;
-  }
-  .preise-table td {
-    padding: 9px 14px; text-align: center;
-    color: #bbb; border-bottom: 1px solid #1e1e1e;
-  }
-  .preise-table tr:nth-child(even) td { background: #161616; }
-  .preise-table tr.row-vollkurs td { background: rgba(232,0,15,0.08); color: var(--light); }
-  .preise-table tr.row-einzeln td { background: #1a1a1a; color: #777; }
-  .preise-table td.td-preis { color: var(--red); font-weight: 600; }
-  .preise-table td.td-total { color: var(--white); font-weight: 600; }
-  .preise-table td.td-gratis { color: #4caf50; font-weight: 600; }
-  .td-badge {
-    display: inline-block;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; padding: 2px 7px; border-radius: 2px;
-  }
-  .badge-vk { background: var(--red); color: #fff; }
-  .badge-ei { background: #444; color: #ccc; }
-  .preise-note {
-    font-size: 0.75rem; color: #555; padding: 12px 16px; margin: 0;
-    border-top: 1px solid #1e1e1e;
-  }
-
   @media (max-width: 700px) {
     .preise-boxes { grid-template-columns: 1fr; }
-    .preise-table th:nth-child(3),
-    .preise-table td:nth-child(3) { display: none; }
   }
 </style>
 
 <script>
 (function() {
   const cfg = KURS_CONFIG;
-  const einsteige = cfg.einsteige;
-  const totalTrainings = einsteige.length;
 
   // Vollkurs: bezahlte Trainings = total - 1 (Probe gratis)
-  const vollkursTrainings = totalTrainings - 1;
+  const vollkursTrainings = cfg.anzahl_termine - 1;
   const vollkursProTraining = (cfg.vollkurs_preis / vollkursTrainings).toFixed(2);
-
-  // Günstigster Späteinstieg
-  const fruehesteSpaet = einsteige.find(e => e.typ === 'abo');
-  const guenstigsteSpaet = fruehesteSpaet ? `CHF ${fruehesteSpaet.preis.toFixed(2)}` : '–';
+  const zeitraum = `${cfg.erster_termin.slice(0, 5)}.–${cfg.letzter_termin.slice(0, 5)}.`;
 
   // 3 Boxen rendern
   const boxContainer = document.getElementById('preise-boxes');
@@ -543,7 +451,7 @@ const KURS_CONFIG = {
       <div class="box-sub">Günstigster Preis · CHF ${vollkursProTraining} / Training</div>
       <hr class="box-divider">
       <ul class="box-features">
-        <li>${totalTrainings} Dienstage (05.05.–28.07.)</li>
+        <li>${cfg.anzahl_termine} Dienstage (${zeitraum})</li>
         <li>Probetraining gratis</li>
         <li>${vollkursTrainings} bezahlte Trainings</li>
         <li>Bester Preis pro Training</li>
@@ -551,14 +459,13 @@ const KURS_CONFIG = {
     </div>
     <div class="preis-box">
       <div class="box-title">Späteinstieg</div>
-      <div class="box-price">ab ${guenstigsteSpaet}</div>
-      <div class="box-sub">Pro Training · gestaffelt nach Datum</div>
+      <div class="box-price">CHF ${cfg.spaeteinstieg_preis}.–</div>
+      <div class="box-sub">Pro Training · gleicher Preis, egal wann du einsteigst</div>
       <hr class="box-divider">
       <ul class="box-features">
         <li>Fixes Abo ab Einstieg</li>
         <li>Probetraining gratis</li>
-        <li>Preis je nach Einsteigsdatum</li>
-        <li>Details unten aufklappen ↓</li>
+        <li>Gültig für alle verbleibenden Dienstage</li>
       </ul>
     </div>
     <div class="preis-box">
@@ -573,61 +480,7 @@ const KURS_CONFIG = {
       </ul>
     </div>
   `;
-
-  // Tabelle rendern
-  const table = document.getElementById('preise-table');
-  let html = `<thead><tr>
-    <th>Einstieg</th>
-    <th>Probetraining</th>
-    <th>Trainings im Abo</th>
-    <th>Preis / Training</th>
-    <th>Total Abo</th>
-    <th>Typ</th>
-  </tr></thead><tbody>`;
-
-  einsteige.forEach((e, i) => {
-    const remaining = einsteige.length - i - 1;
-    if (e.typ === 'vollkurs') {
-      html += `<tr class="row-vollkurs">
-        <td><strong>${e.datum}</strong></td>
-        <td class="td-gratis">gratis</td>
-        <td>${vollkursTrainings}</td>
-        <td class="td-preis">CHF ${vollkursProTraining}</td>
-        <td class="td-total">CHF ${cfg.vollkurs_preis}.–</td>
-        <td><span class="td-badge badge-vk">Vollkurs</span></td>
-      </tr>`;
-    } else if (e.typ === 'einzeln') {
-      html += `<tr class="row-einzeln">
-        <td>${e.datum}</td>
-        <td class="td-gratis">gratis</td>
-        <td>–</td>
-        <td class="td-preis">CHF ${cfg.einzeleintritt}.–</td>
-        <td class="td-total">CHF ${cfg.einzeleintritt}.–</td>
-        <td><span class="td-badge badge-ei">Einzeln</span></td>
-      </tr>`;
-    } else {
-      const total = Math.round(e.preis * remaining);
-      html += `<tr>
-        <td>${e.datum}</td>
-        <td class="td-gratis">gratis</td>
-        <td>${remaining}</td>
-        <td class="td-preis">CHF ${e.preis.toFixed(2)}</td>
-        <td class="td-total">CHF ${total}.–</td>
-        <td></td>
-      </tr>`;
-    }
-  });
-
-  html += '</tbody>';
-  table.innerHTML = html;
 })();
-
-function toggleAccordion() {
-  const body = document.getElementById('accordion-body');
-  const arrow = document.getElementById('acc-arrow');
-  body.classList.toggle('open');
-  arrow.classList.toggle('open');
-}
 </script>
 
 <section id="anmeldung">
